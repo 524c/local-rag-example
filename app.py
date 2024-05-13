@@ -40,7 +40,7 @@ def read_and_save_file():
         os.remove(file_path)
 
 
-# Summarize the contract, include the amount paid monthly and exclude the information using bullet points.
+# Summarize the contract, inform the amount that will be paid monthly for the services provided to Engage P2P by the agent and add the information using bullet points. Separate everything into paragraphs.
 
 def page():
     if len(st.session_state) == 0:
