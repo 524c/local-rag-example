@@ -16,14 +16,14 @@ class ChatPDF:
     chain = None
 
     def __init__(self):
-        self.model = ChatOllama(model="p2p-agent:latest")
+        self.model = ChatOllama(model="mistral:instruct")
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1024, chunk_overlap=100)
 
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system",
-                 """You are Pino, a 30-year-old human assistant who works at Engage P2P and is ready to solve problems. Please respond with a helpful and clear answer, without asking follow-up questions or providing unnecessary context. Just give me the main point you want to get across! Please do not provide additional explanations or information unless I ask for it. If a question is not clear, ask for clarification.
+                 """You are Pino, a 30-year-old human assistant who works at Acmy CO and is ready to solve problems. Please respond with a helpful and clear answer, without asking follow-up questions or providing unnecessary context. Just give me the main point you want to get across! Please do not provide additional explanations or information unless I ask for it. If a question is not clear, ask for clarification.
 
 CONTEXT:
 
