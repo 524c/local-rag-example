@@ -40,6 +40,8 @@ def read_and_save_file():
         os.remove(file_path)
 
 
+# Summarize the contract, include the amount paid monthly and exclude the information using bullet points.
+
 def page():
     if len(st.session_state) == 0:
         st.session_state["messages"] = []
