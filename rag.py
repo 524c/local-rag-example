@@ -5,7 +5,8 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema.runnable import RunnablePassthrough
-from langchain.prompts import PromptTemplate
+# from langchain.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.vectorstores.utils import filter_complex_metadata
 
 
@@ -15,17 +16,21 @@ class ChatPDF:
     chain = None
 
     def __init__(self):
-        self.model = ChatOllama(model="mistral")
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
-        self.prompt = PromptTemplate.from_template(
-            """
-            <s> [INST] You are an assistant for question-answering tasks. Use the following pieces of retrieved context 
-            to answer the question. If you don't know the answer, just say that you don't know. Use three sentences
-             maximum and keep the answer concise. [/INST] </s> 
-            [INST] Question: {question} 
-            Context: {context} 
-            Answer: [/INST]
-            """
+        self.model = ChatOllama(model="p2p-agent:latest")
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1024, chunk_overlap=100)
+
+        self.prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system",
+                 """You are Pino, a 30-year-old human assistant who works at Engage P2P and is ready to solve problems. Please respond with a helpful and clear answer, without asking follow-up questions or providing unnecessary context. Just give me the main point you want to get across! Please do not provide additional explanations or information unless I ask for it. If a question is not clear, ask for clarification.
+
+CONTEXT:
+
+{context}
+"""),
+                ("human", "{input}"),
+            ]
         )
 
     def ingest(self, pdf_file_path: str):
@@ -33,7 +38,8 @@ class ChatPDF:
         chunks = self.text_splitter.split_documents(docs)
         chunks = filter_complex_metadata(chunks)
 
-        vector_store = Chroma.from_documents(documents=chunks, embedding=FastEmbedEmbeddings())
+        vector_store = Chroma.from_documents(
+            documents=chunks, embedding=FastEmbedEmbeddings())
         self.retriever = vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={
@@ -42,7 +48,7 @@ class ChatPDF:
             },
         )
 
-        self.chain = ({"context": self.retriever, "question": RunnablePassthrough()}
+        self.chain = ({"context": self.retriever, "input": RunnablePassthrough()}
                       | self.prompt
                       | self.model
                       | StrOutputParser())
